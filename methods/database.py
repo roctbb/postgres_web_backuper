@@ -19,6 +19,8 @@ def get_schemas():
 
 
     for database in databases:
+        if database in IGNORED_DATABASES:
+            continue
         try:
             conn = psycopg2.connect(host=PG_HOST, port=PG_PORT, user=PG_USER, password=PG_PASSWORD,
                                     database=database[0])
@@ -52,8 +54,11 @@ def create_records(targets):
 def get_groups(records):
     groups = {}
     for record in records:
-        if record.database not in groups:
-            groups[record.database] = []
-        groups[record.database].append(record)
+        if record.database != "template1": #если будет многа, создайте в config список с игнором
+            if record.database not in groups:
+                groups[record.database] = []
+            if record.schema not in IGNORED_SCHEMAS:
+
+                groups[record.database].append(record.schema)
 
     return groups

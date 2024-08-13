@@ -4,48 +4,80 @@
     <meta charset="UTF-8">
     <title>Database Information</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .collapse {
+            display: none;
+        }
+    </style>
 </head>
 <body>
+
 <div class="container">
-    <h1>Database Information</h1>
+
     <div class="row gy-5">
         <form method="POST">
             <div class="row gy-3">
                 {% for database in groups %}
                 <div>
-                    <h2>{{ database }}</h2>
-                    <table class="table">
-                        <thead>
-                        <tr>
-                            <th>Collection Name</th>
-                            <th>Frequency</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-
-                        <tr>
+                    <h2 onclick="toggleDatabase('{{ database }}')" style="cursor: pointer;">{{ database }}</h2>
+                    <div id="collapse_{{ database }}" class="collapse">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>Collection Name</th>
+                                <th>Frequency</th>
+                            </tr>
+                            </thead>
+                            <tbody>
                             {% for record in groups[database] %}
-                            <td>{{ record.schema }}</td>
-                            <td>
-                                <div class="row">
-                                    <div class="form-group col-12">
-                                        <label for="frequencySelect">Частота:</label>
-                                        <select class="form-control form-select" id="frequencySelect"
-                                                name="frequency_{{ record.database }}_{{ record.schema }}">
-                                            <option {% if record.freq=="never" %} selected {% endif %} value="never">never</option>
-                                            <option {% if record.freq=="daily" %} selected {% endif %} value="daily">daily</option>
-                                            <option {% if record.freq=="weekly" %} selected {% endif %} value="weekly">weekly</option>
-                                        </select>
+                            <tr>
+                                <td>{{ record.schema }}</td>
+                                <td>
+                                    <div class="row">
+                                        <div class="form-group col-12">
+                                            <ul>
+                                                <li>
+                                                    <label for="frequencySelect_{{ database }}_{{ record.schema }}">Частота скачивния:</label>
+                                                    <select class="form-control form-select"
+                                                            id="frequencySelect_{{ database }}_{{ record.schema }}"
+                                                            name="frequency_{{ record.database }}_{{ record.schema }}">
+                                                        <option {% if record.freq=="never" %} selected {% endif %}
+                                                                value="never">never
+                                                        </option>
+                                                        <option {% if record.freq=="daily" %} selected {% endif %}
+                                                                value="daily">daily
+                                                        </option>
+                                                        <option {% if record.freq=="weekly" %} selected {% endif %}
+                                                                value="weekly">weekly
+                                                        </option>
+                                                    </select>
+                                                </li>
+                                                <li>
+                                                    <label for="frequencySelect_{{ database }}_{{ record.schema }}">Частота удаления:</label>
+                                                    <select class="form-control form-select"
+                                                            id="DeleteSelect_{{ database }}_{{ record.schema }}"
+                                                            name="frequency_{{ record.database }}_{{ record.schema }}">
+                                                        <option {% if record.freq=="never" %} selected {% endif %}
+                                                                value="never">never
+                                                        </option>
+                                                        <option {% if record.freq=="daily" %} selected {% endif %}
+                                                                value="daily">daily
+                                                        </option>
+                                                        <option {% if record.freq=="weekly" %} selected {% endif %}
+                                                                value="weekly">weekly
+                                                        </option>
+                                                    </select>
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </div>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-
-                        </tbody>
-                    </table>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-
                 {% endfor %}
             </div>
             <div class="d-grid gap-2">
@@ -53,12 +85,23 @@
             </div>
         </form>
     </div>
-
-    <!-- Подключаем библиотеку Popper.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-
-    <!-- Подключаем библиотеку Bootstrap JS -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    function toggleDatabase(databaseName) {
+        const collapseElement = document.getElementById('collapse_' + databaseName);
+        if (collapseElement.style.display === 'none' || collapseElement.style.display === '') {
+            collapseElement.style.display = 'block';
+        } else {
+            collapseElement.style.display = 'none';
+        }
+    }
+</script>
 </body>
 </html>

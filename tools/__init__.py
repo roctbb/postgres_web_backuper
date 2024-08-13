@@ -1,3 +1,3 @@
 from .archiver import Archiver
-from .backuper import backuper
+from .backuper import Backuper
 from .uploader import S3Uploader
