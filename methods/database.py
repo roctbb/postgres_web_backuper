@@ -52,13 +52,33 @@ def create_records(targets):
 
 
 def get_groups(records):
-    groups = {}
+    databases = []
+
     for record in records:
-        if record.database != "template1": #если будет многа, создайте в config список с игнором
-            if record.database not in groups:
-                groups[record.database] = []
+        if record.database != "template1":
+            database_entry = next((db for db in databases if db["name"] == record.database), None)
+            if not database_entry:
+
+                database_entry = {
+                    "name": record.database,
+                    "enabled": True,
+                    "schemas": []
+                }
+                databases.append(database_entry)
+
+            # Проверяем, не находится ли схема в списке игнорируемых
             if record.schema not in IGNORED_SCHEMAS:
+                # Поиск существующей схемы в текущей базе данных
+                schema_entry = next((schema for schema in database_entry["schemas"] if schema["name"] == record.schema), None)
+                if not schema_entry:
+                    # Если схема не найдена, создаем новый объект схемы
+                    schema_entry = {
+                        "name": record.schema,
+                        "enabled": True,
+                        "mode": record.mode,
+                        "delete_days": record.delete_days
+                    }
+                    database_entry["schemas"].append(schema_entry)
 
-                groups[record.database].append(record.schema)
+    return databases
 
-    return groups

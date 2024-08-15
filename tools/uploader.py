@@ -1,6 +1,5 @@
 import boto3
 
-from config import *
 from datetime import datetime
 
 import  os

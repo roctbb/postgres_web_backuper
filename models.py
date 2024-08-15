@@ -9,4 +9,5 @@ class Schema(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     database = db.Column(db.String(50))
     schema = db.Column(db.String(50))
-    freq = db.Column(db.String(50))
+    mode = db.Column(db.String(50))
+    delete_days = db.Column(db.Integer(), nullable=True)

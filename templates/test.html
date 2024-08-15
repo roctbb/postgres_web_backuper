@@ -3,103 +3,149 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bootstrap demo</title>
+    <title>Backuper</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
 <body id="app">
-<ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-    <li>Backuper</li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" type="button" role="tab" @click="showDatabases()">db
-        </button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" type="button" role="tab" @click="showFiles()">file</button>
-    </li>
-</ul>
+<nav>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container">
+            <a class="navbar-brand" href="#">Backuper</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" :class="{ active: page === 'databases' }" type="button" role="tab"
+                                @click="showDatabases()" aria-selected="true">db
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" :class="{ active: page === 'files' }" type="button" role="tab"
+                                @click="showFiles()"
+                                aria-selected="false">file
+                        </button>
+                    </li>
 
-<div class="container">
+                </ul>
+            </div>
+        </div>
+    </nav>
+</nav>
+<div class="container my-3">
     <div v-if="page === 'files'">FILES</div>
     <div v-if="page === 'databases'">
-        <div v-for="database in databases">
-            <h3><input type="checkbox" v-model="database.enabled"/> {{ database.name }}</h3>
 
-            <div v-if="database.enabled">
-                <div v-for="schema in database.schemas">
-                    <input type="checkbox" v-model="schema.enabled"/> {{ schema.name }} <span v-if="schema.enabled">{{ schema.mode }}</span>
+        <!--<div class="card" style="width: 18rem;">
+            <div class="card-header">
+                Featured
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">An item</li>
+                <li class="list-group-item">A second item</li>
+                <li class="list-group-item">A third item</li>
+            </ul>
+        </div>-->
+
+        <form @submit.prevent="submitForm" method="POST">
+
+
+            <div v-for="database in databases" :key="database.name">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <input type="checkbox" v-model="database.enabled"/> {{ database.name }}
+                    </div>
+                    <div class="card-body" v-if="database.enabled">
+                        <h5 class="card-title">Настройки схем</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item" v-for="schema in database.schemas" :key="schema.name">
+                                <input type="checkbox" v-model="schema.enabled"/> {{ schema.name }}
+
+                                <span  v-if="schema.enabled" class="mt-2">
+                                    <label for="frequencySelect_{{ schema.name }}"> - Частота скачивания:</label>
+                                    <select class="form-control form-select d-inline-block"
+                                            id="frequencySelect_{{ schema.name }}" v-model="schema.mode"
+                                            style="width: auto; display: inline;">
+                                        <option value="never">Never</option>
+                                        <option value="daily">Daily</option>
+                                        <option value="weekly">Weekly</option>
+                                    </select>
+
+                                    <label for="deleteDaysInput_{{ schema.name }}" class="ms-2">Частота удаления(в днях):</label>
+                                    <input type="number" class="form-control d-inline-block"
+                                           id="deleteDaysInput_{{ schema.name }}" v-model.number="schema.delete_days"
+                                           min="0" style="width: 80px;">
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
 
-        </div>
 
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+            </div>
+        </form>
     </div>
+
+</div>
 </div>
 
 <script>
     const app = Vue.createApp({
-      data() { [
-              {
-                   "name": "meds",
-                   "enabled": true,
-                   "schemas": [
-                        {
-                            "name": "public",
-                            "enabled": true,
-                            "mode": "weekly",
-                            "delete_days": 31
-                        }
-                   ]
-              },
-              {
-                   "name": "forms",
-                   "enabled": true,
-                   "schemas": [
-                        {
-                            "name": "public",
-                            "enabled": true,
-                            "mode": "weekly",
-                            "delete_days": 31
-                        },
-                        {
-                            "name": "public",
-                            "enabled": true,
-                            "mode": "weekly",
-                            "delete_days": 31
-                        }
-                   ]
-              }
-
-          ]
-        }
-        return {
-          page: "databases",
-          databases:
-      },
-      methods: {
-          showDatabases: function () {
-               this.page = "databases"
-          },
-          showFiles: function () {
-               this.page = "files"
-          }
-      },
-      async mounted() {
-          const url = "/databases";
-          try {
-            const response = await fetch(url);
-            if (!response.ok) {
-              throw new Error(`Response status: ${response.status}`);
+        data() {
+            return {
+                page: "databases",
+                databases: []
             }
+        },
+        methods: {
+            showDatabases: function () {
+                this.page = "databases"
+            },
+            showFiles: function () {
+                this.page = "files"
+            },
+            async submitForm() {
+                try {
+                    const response = await fetch('/api/save', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(this.databases)
+                    });
 
-            const json = await response.json();
-            console.log(json)
-            //this.databases = await response.json()
-          } catch (error) {
-            console.error(error.message);
-          }
-      }
+                    if (!response.ok) {
+                        throw new Error(`Response status: ${response.status}`);
+                    }
+
+
+                    console.log('Данные успешно отправлены');
+                } catch (error) {
+                    console.error(error.message);
+                }
+            }
+        },
+        async mounted() {
+            const url = "/api/databases";
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`Response status: ${response.status}`);
+                }
+
+                this.databases = await response.json();
+            } catch (error) {
+                console.error(error.message);
+            }
+        }
     })
 
     app.mount('#app')

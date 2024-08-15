@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, jsonify, send_file
+from flask import Flask, request, redirect, jsonify, send_file
 from flask_migrate import Migrate
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -21,12 +21,14 @@ users = {
     TP_login: generate_password_hash(TP_password)
 }
 
+
 @app.route('/', methods=['get'])
 @auth.login_required
 def index():
     return send_file("templates/test.html")
 
-@app.route('/databases', methods=['get'])
+
+@app.route('/api/databases', methods=['get'])
 @auth.login_required
 def get_databases():
     targets = get_schemas()
@@ -35,24 +37,37 @@ def get_databases():
 
     return jsonify(groups)
 
-@app.route('/', methods=['post'])
+
+@app.route('/api/save', methods=['POST'])
 @auth.login_required
 def save():
-    for database, schema in get_schemas():
-        freq = request.form.get(f"frequency_{database}_{schema}")
-
-        schema = Schema.query.filter_by(database=database, schema=schema).first()
-        if schema and freq in ["daily", "weekly", "never"]:
-            schema.freq = freq
+    Schema.query.update({Schema.mode: 'never'})
     db.session.commit()
 
+    data = request.get_json()
+
+    for database in data:
+        if database["enabled"]:
+            print(database)
+            for schema in database["schemas"]:
+                if schema["enabled"]:
+
+                    record = Schema.query.filter_by(database=database["name"], schema=schema["name"]).first()
+                    if not record:
+                        record = Schema(database=database["name"], schema=schema["name"])
+                        db.session.add(record)
+
+                    record.mode = schema["mode"]
+                    record.delete_days = schema["delete_days"]
+
+    db.session.commit()
     return redirect("/")
+
 
 @auth.verify_password
 def verify_password(username, password):
     if username in users and check_password_hash(users.get(username), password):
         return "Sucsses"
-
 
 
 if __name__ == '__main__':

@@ -37,20 +37,7 @@
                                         <div class="form-group col-12">
                                             <ul>
                                                 <li>
-                                                    <label for="frequencySelect_{{ database }}_{{ record.schema }}">Частота скачивния:</label>
-                                                    <select class="form-control form-select"
-                                                            id="frequencySelect_{{ database }}_{{ record.schema }}"
-                                                            name="frequency_{{ record.database }}_{{ record.schema }}">
-                                                        <option {% if record.freq=="never" %} selected {% endif %}
-                                                                value="never">never
-                                                        </option>
-                                                        <option {% if record.freq=="daily" %} selected {% endif %}
-                                                                value="daily">daily
-                                                        </option>
-                                                        <option {% if record.freq=="weekly" %} selected {% endif %}
-                                                                value="weekly">weekly
-                                                        </option>
-                                                    </select>
+
                                                 </li>
                                                 <li>
                                                     <label for="frequencySelect_{{ database }}_{{ record.schema }}">Частота удаления:</label>

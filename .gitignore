@@ -1,4 +1,4 @@
-config.py
+backups/config.py
 .idea
 venv
 backupdata.sqlite3

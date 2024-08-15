@@ -12,21 +12,29 @@ class Backuper:
     def apply(self, target):
         db, schema = target
         filename = f"{db}_{schema}.sql"
-        local_file_path = '{}{}'.format("backups/", filename)
-        cmd = [PG_DUMP,
-               '--dbname=postgresql://{}:{}@{}:{}/{}'.format(self.__user, self.__password, self.__host, self.__port,
-                                                             db),
-               '-n', schema,
-               '-f', f'{local_file_path}',
-               '-v']
+        local_file_path = 'backups/{}'.format(filename)
+
+        cmd = [
+            PG_DUMP,
+            '--dbname=postgresql://{}:{}@{}:{}/{}'.format(self.__user, self.__password, self.__host, self.__port, db),
+            '-n', schema,
+            '-f', local_file_path,
+            '-v'
+        ]
 
         if DEBUG:
             print(" ".join(cmd))
-        print(' '.join(cmd))
+
         process = subprocess.Popen(
             cmd,
-            stdout=subprocess.PIPE
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
         )
 
-        process.communicate()
+        stdout, stderr = process.communicate()
+
+        if process.returncode != 0:
+            print(f"Error in backup creation: {stderr.decode('utf-8')}")
+            return None
+
         return local_file_path
