@@ -70,11 +70,11 @@
 
 
         <div class="d-grid gap-2">
-            <button type="submit" class="btn btn-primary" @click="submitFormDirect">Сохранить</button>
+            <button type="submit" class="btn btn-primary" @click="submit">Сохранить</button>
         </div>
     </div>
     <div v-if="page === 'databases'">
-        <form @submit.prevent="submitForm" method="POST">
+        <form method="POST">
 
 
             <div v-for="database in databases" :key="database.name">
@@ -111,7 +111,7 @@
 
 
             <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-primary">Сохранить</button>
+                <button type="submit" class="btn btn-primary" @click="submit">Сохранить</button>
             </div>
         </form>
     </div>
@@ -139,7 +139,9 @@
             removeFile: function (index) {
                 this.files.splice(index, 1);
             },
-            async submitForm() {
+            async submit() {
+                let error = false
+
                 try {
                     const response = await fetch('/api/save', {
                         method: 'POST',
@@ -157,9 +159,9 @@
                     console.log('Данные успешно отправлены');
                 } catch (error) {
                     console.error(error.message);
+                    error = true
                 }
-            },
-            async submitFormDirect() {
+
                 try {
                     const response = await fetch('/api/save_direct', {
                         method: 'POST',
@@ -177,11 +179,19 @@
                     console.log('Данные успешно отправлены');
                 } catch (error) {
                     console.error(error.message);
+                    error = true
+                }
+
+                if (error) {
+                    alert("Ошибка")
+                } else {
+                    alert("Сохранено")
                 }
             }
         },
         async mounted() {
             let url = "/api/databases";
+
             try {
                 const response = await fetch(url);
                 if (!response.ok) {
@@ -204,8 +214,6 @@
             } catch (error) {
                 console.error(error.message);
             }
-
-
         },
     })
 
