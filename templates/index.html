@@ -74,21 +74,18 @@
         </div>
     </div>
     <div v-if="page === 'databases'">
-        <form method="POST">
+        <div v-for="database in databases" :key="database.name">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <input type="checkbox" v-model="database.enabled"/> {{ database.name }}
+                </div>
+                <div class="card-body" v-if="database.enabled">
+                    <h5 class="card-title">Настройки схем</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item" v-for="schema in database.schemas" :key="schema.name">
+                            <input type="checkbox" v-model="schema.enabled"/> {{ schema.name }}
 
-
-            <div v-for="database in databases" :key="database.name">
-                <div class="card mb-3">
-                    <div class="card-header">
-                        <input type="checkbox" v-model="database.enabled"/> {{ database.name }}
-                    </div>
-                    <div class="card-body" v-if="database.enabled">
-                        <h5 class="card-title">Настройки схем</h5>
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item" v-for="schema in database.schemas" :key="schema.name">
-                                <input type="checkbox" v-model="schema.enabled"/> {{ schema.name }}
-
-                                <span v-if="schema.enabled" class="mt-2">
+                            <span v-if="schema.enabled" class="mt-2">
                                     <label for="frequencySelect_{{ schema.name }}"> - Частота скачивания:</label>
                                     <select class="form-control form-select d-inline-block"
                                             id="frequencySelect_{{ schema.name }}" v-model="schema.mode"
@@ -103,17 +100,16 @@
                                            id="deleteDaysInput_{{ schema.name }}" v-model.number="schema.delete_days"
                                            min="0" style="width: 80px;">
                                 </span>
-                            </li>
-                        </ul>
-                    </div>
+                        </li>
+                    </ul>
                 </div>
             </div>
+        </div>
 
 
-            <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-primary" @click="submit">Сохранить</button>
-            </div>
-        </form>
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary" @click="submit">Сохранить</button>
+        </div>
     </div>
 </div>
 
