@@ -11,3 +11,10 @@ class Schema(db.Model):
     schema = db.Column(db.String(50))
     mode = db.Column(db.String(50))
     delete_days = db.Column(db.Integer(), nullable=True)
+
+class Directory(db.Model):
+    __tablename__ = 'directories'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    path = db.Column(db.String(50)) #путь
+    mode = db.Column(db.String(50))
+    delete_days = db.Column(db.Integer(), nullable=True)

@@ -2,7 +2,6 @@ import psycopg2
 from config import *
 from models import *
 
-
 def get_schemas():
     result = []
     try:
@@ -40,6 +39,7 @@ def get_schemas():
 
     return result
 
+#############
 
 def create_records(targets):
     for database, schema in targets:
@@ -50,6 +50,7 @@ def create_records(targets):
 
     return Schema.query.all()
 
+##############
 
 def get_groups(records):
     databases = []
@@ -66,12 +67,12 @@ def get_groups(records):
                 }
                 databases.append(database_entry)
 
-            # Проверяем, не находится ли схема в списке игнорируемых
+
             if record.schema not in IGNORED_SCHEMAS:
-                # Поиск существующей схемы в текущей базе данных
+
                 schema_entry = next((schema for schema in database_entry["schemas"] if schema["name"] == record.schema), None)
                 if not schema_entry:
-                    # Если схема не найдена, создаем новый объект схемы
+
                     schema_entry = {
                         "name": record.schema,
                         "enabled": True,
@@ -81,4 +82,47 @@ def get_groups(records):
                     database_entry["schemas"].append(schema_entry)
 
     return databases
+
+###########################################################################################
+
+
+def get_directories():
+    result = []
+
+    for directory in Directory.query:
+        result.append({
+            "id": directory.id,
+            "path": directory.path,
+            "mode": directory.mode,
+            "delete_days": directory.delete_days
+        })
+
+    return result
+
+##############
+
+def create_directory_records(paths):
+    for path in paths:
+        record = Directory.query.filter_by(path=path).first()
+        if not record:
+            db.session.add(Directory(path=path, mode="default_mode", delete_days=None))
+    db.session.commit()
+
+    return Directory.query.all()
+
+##############
+
+def get_directory_groups(records):
+    directory_groups = []
+
+    for record in records:
+        directory_entry = {
+            "path": record.path,
+
+            "mode": record.mode,
+            "delete_days": record.delete_days,
+        }
+        directory_groups.append(directory_entry)
+
+    return directory_groups
 

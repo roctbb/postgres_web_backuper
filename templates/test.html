@@ -27,31 +27,53 @@
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" :class="{ active: page === 'files' }" type="button" role="tab"
-                                @click="showFiles()"
-                                aria-selected="false">file
+                                @click="showFiles()" aria-selected="false">file
                         </button>
                     </li>
-
                 </ul>
             </div>
         </div>
     </nav>
 </nav>
 <div class="container my-3">
-    <div v-if="page === 'files'">FILES</div>
-    <div v-if="page === 'databases'">
+    <div v-if="page === 'files'">
+        <button type="button" class="btn btn-secondary btn-sm" @click="addFile">Добавить файл</button>
 
-        <!--<div class="card" style="width: 18rem;">
-            <div class="card-header">
-                Featured
+        <div v-for="(file, index) in files" :key="index" class="card my-3">
+            <div class="card-body">
+                <h5 class="card-title">Папка {{ index + 1 }}</h5>
+                <div class="mb-3 d-flex align-items-center">
+                    <div class="me-3">
+                        <label for="path" class="form-label">Путь сохранения:</label>
+                        <input type="text" class="form-control" v-model="file.path">
+                    </div>
+                    <div class="me-3">
+                        <label for="downloadFrequency" class="form-label">Частота скачивания:</label>
+                        <select id="downloadFrequency" class="form-control form-select" v-model="file.mode">
+                            <option value="never">Never</option>
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                        </select>
+                    </div>
+
+                    <div class="me-3">
+                        <label for="deleteFrequency" class="form-label">Частота удаления (дни):</label>
+                        <input type="number" class="form-control" v-model="file.delete_days">
+                    </div>
+                    <div class="me-3">
+                        <button type="button" class="btn btn-danger" @click="removeFile(index)">Удалить файл</button>
+                    </div>
+                </div>
+
             </div>
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item">An item</li>
-                <li class="list-group-item">A second item</li>
-                <li class="list-group-item">A third item</li>
-            </ul>
-        </div>-->
+        </div>
 
+
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary" @click="submitFormDirect">Сохранить</button>
+        </div>
+    </div>
+    <div v-if="page === 'databases'">
         <form @submit.prevent="submitForm" method="POST">
 
 
@@ -66,7 +88,7 @@
                             <li class="list-group-item" v-for="schema in database.schemas" :key="schema.name">
                                 <input type="checkbox" v-model="schema.enabled"/> {{ schema.name }}
 
-                                <span  v-if="schema.enabled" class="mt-2">
+                                <span v-if="schema.enabled" class="mt-2">
                                     <label for="frequencySelect_{{ schema.name }}"> - Частота скачивания:</label>
                                     <select class="form-control form-select d-inline-block"
                                             id="frequencySelect_{{ schema.name }}" v-model="schema.mode"
@@ -93,8 +115,6 @@
             </div>
         </form>
     </div>
-
-</div>
 </div>
 
 <script>
@@ -102,7 +122,8 @@
         data() {
             return {
                 page: "databases",
-                databases: []
+                databases: [],
+                files: []
             }
         },
         methods: {
@@ -111,6 +132,12 @@
             },
             showFiles: function () {
                 this.page = "files"
+            },
+            addFile: function () {
+                this.files.push({path: '', mode: 'never', delete_days: 31});
+            },
+            removeFile: function (index) {
+                this.files.splice(index, 1);
             },
             async submitForm() {
                 try {
@@ -131,10 +158,30 @@
                 } catch (error) {
                     console.error(error.message);
                 }
+            },
+            async submitFormDirect() {
+                try {
+                    const response = await fetch('/api/save_direct', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(this.files)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Response status: ${response.status}`);
+                    }
+
+
+                    console.log('Данные успешно отправлены');
+                } catch (error) {
+                    console.error(error.message);
+                }
             }
         },
         async mounted() {
-            const url = "/api/databases";
+            let url = "/api/databases";
             try {
                 const response = await fetch(url);
                 if (!response.ok) {
@@ -145,10 +192,25 @@
             } catch (error) {
                 console.error(error.message);
             }
-        }
+
+            url = "/api/directories";
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`Response status: ${response.status}`);
+                }
+
+                this.files = await response.json();
+            } catch (error) {
+                console.error(error.message);
+            }
+
+
+        },
     })
 
     app.mount('#app')
 </script>
+
 </body>
 </html>

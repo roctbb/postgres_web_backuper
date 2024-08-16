@@ -20,6 +20,11 @@ class S3Uploader:
 
         self.__directory = datetime.now().strftime('%Y-%m-%d/%H_%M/')
 
+        if self.__debug:
+            print("Uploding to ", self.__directory)
+
+
+
     def apply(self, file_name):
         if not self.__debug:
             name = file_name.split('/')[-1]

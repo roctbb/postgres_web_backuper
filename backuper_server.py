@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from methods import *
 from config import TP_login, TP_password
 import os
+import psycopg2
 
 app = Flask(__name__)
 
@@ -37,6 +38,14 @@ def get_databases():
 
     return jsonify(groups)
 
+@app.route('/api/directories', methods=['GET'])
+@auth.login_required
+def get_directories_api():
+
+    directories = get_directories()
+    print(directories)
+    return jsonify(directories)
+
 
 @app.route('/api/save', methods=['POST'])
 @auth.login_required
@@ -59,6 +68,30 @@ def save():
 
                     record.mode = schema["mode"]
                     record.delete_days = schema["delete_days"]
+
+    db.session.commit()
+    return redirect("/")
+
+@app.route('/api/save_direct', methods=['POST'])
+@auth.login_required
+def save_directories():
+
+    Directory.query.delete()
+    db.session.commit()
+
+    data = request.get_json()
+
+    for directory in data:
+
+        print(directory)
+
+        record = Directory.query.filter_by(path=directory["path"]).first()
+        if not record:
+            record = Directory(path=directory["path"])
+            db.session.add(record)
+
+        record.mode = directory["mode"]
+        record.delete_days = directory["delete_days"]
 
     db.session.commit()
     return redirect("/")
