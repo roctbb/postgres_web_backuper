@@ -3,4 +3,4 @@ from backuper_server import app
 from methods import *
 
 with app.app_context():
-    backup_files = make_backup(modes=['daily', 'weekly'], files=True, databases=True)
+    backup_files = make_backup(modes=['daily', 'weekly'], files=True, databases=False)

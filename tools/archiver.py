@@ -10,13 +10,14 @@ class Archiver:
         backup_dir = "backups"
         os.makedirs(backup_dir, exist_ok=True)
 
-        outfile = os.path.join(backup_dir, os.path.basename(filename) + '.zip')
+        
 
         if not os.path.exists(filename):
             print(f"File or directory '{filename}' does not exist.")
             return None
 
         if os.path.isdir(filename):
+            outfile = os.path.join(backup_dir, file.replace(os.sep, '_') + '.zip')
             with pyzipper.AESZipFile(outfile, 'w', compression=pyzipper.ZIP_LZMA, encryption=pyzipper.WZ_AES) as zipf:
                 zipf.setpassword(ZIP_PASSWORD.encode('utf-8'))
                 for root, _, files in os.walk(filename):
@@ -25,6 +26,7 @@ class Archiver:
                         zipf.write(file_path, os.path.relpath(file_path, filename))
             return outfile
         else:
+            outfile = os.path.join(backup_dir, os.path.basename(filename) + '.zip')
             with pyzipper.AESZipFile(outfile, 'w', compression=pyzipper.ZIP_LZMA, encryption=pyzipper.WZ_AES) as zipf:
                 zipf.setpassword(ZIP_PASSWORD.encode('utf-8'))
                 zipf.write(filename, os.path.basename(filename))
