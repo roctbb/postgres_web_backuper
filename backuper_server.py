@@ -26,7 +26,7 @@ users = {
 @app.route('/', methods=['get'])
 @auth.login_required
 def index():
-    return send_file("templates/test.html")
+    return send_file("templates/index.html")
 
 
 @app.route('/api/databases', methods=['get'])
