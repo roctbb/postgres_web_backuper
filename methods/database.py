@@ -76,7 +76,7 @@ def get_groups(records):
 
                     schema_entry = {
                         "name": record.schema,
-                        "enabled": True,
+                        "enabled": record.mode != "never",
                         "mode": record.mode,
                         "delete_days": record.delete_days
                     }
