@@ -2,6 +2,7 @@ import psycopg2
 from config import *
 from models import *
 
+
 def get_schemas():
     result = []
     try:
@@ -15,7 +16,6 @@ def get_schemas():
     except Exception as error:
         print("Ошибка при работе с базой данных:", error)
         return []
-
 
     for database in databases:
         if database in IGNORED_DATABASES:
@@ -39,16 +39,18 @@ def get_schemas():
 
     return result
 
+
 #############
 
 def create_records(targets):
     for database, schema in targets:
         record = Schema.query.filter_by(database=database, schema=schema).first()
         if not record:
-            db.session.add(Schema(database=database, schema=schema, freq="never"))
+            db.session.add(Schema(database=database, schema=schema, mode="never"))
     db.session.commit()
 
     return Schema.query.all()
+
 
 ##############
 
@@ -59,18 +61,17 @@ def get_groups(records):
         if record.database != "template1":
             database_entry = next((db for db in databases if db["name"] == record.database), None)
             if not database_entry:
-
                 database_entry = {
                     "name": record.database,
-                    "enabled": True,
+                    "enabled": False,
                     "schemas": []
                 }
                 databases.append(database_entry)
 
-
             if record.schema not in IGNORED_SCHEMAS:
 
-                schema_entry = next((schema for schema in database_entry["schemas"] if schema["name"] == record.schema), None)
+                schema_entry = next((schema for schema in database_entry["schemas"] if schema["name"] == record.schema),
+                                    None)
                 if not schema_entry:
 
                     schema_entry = {
@@ -81,7 +82,11 @@ def get_groups(records):
                     }
                     database_entry["schemas"].append(schema_entry)
 
-    return databases
+                    if record.mode != "never":
+                        database_entry["enabled"] = True
+
+    return sorted(databases, key=lambda d: d["name"])
+
 
 ###########################################################################################
 
@@ -99,6 +104,7 @@ def get_directories():
 
     return result
 
+
 ##############
 
 def create_directory_records(paths):
@@ -109,6 +115,7 @@ def create_directory_records(paths):
     db.session.commit()
 
     return Directory.query.all()
+
 
 ##############
 
@@ -125,4 +132,3 @@ def get_directory_groups(records):
         directory_groups.append(directory_entry)
 
     return directory_groups
-
