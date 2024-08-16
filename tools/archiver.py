@@ -17,7 +17,7 @@ class Archiver:
             return None
 
         if os.path.isdir(filename):
-            outfile = os.path.join(backup_dir, file.replace(os.sep, '_') + '.zip')
+            outfile = os.path.join(backup_dir, filename.replace(os.sep, '_') + '.zip')
             with pyzipper.AESZipFile(outfile, 'w', compression=pyzipper.ZIP_LZMA, encryption=pyzipper.WZ_AES) as zipf:
                 zipf.setpassword(ZIP_PASSWORD.encode('utf-8'))
                 for root, _, files in os.walk(filename):
