@@ -73,11 +73,13 @@ def get_groups(records):
                 schema_entry = next((schema for schema in database_entry["schemas"] if schema["name"] == record.schema),
                                     None)
                 if not schema_entry:
+                    if not record.mode:
+                        record.mode = "never"
 
                     schema_entry = {
                         "name": record.schema,
                         "enabled": record.mode != "never",
-                        "mode": record.mode,
+                        "mode": record.mode ,
                         "delete_days": record.delete_days
                     }
                     database_entry["schemas"].append(schema_entry)

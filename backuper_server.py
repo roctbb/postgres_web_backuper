@@ -41,9 +41,7 @@ def get_databases():
 @app.route('/api/directories', methods=['GET'])
 @auth.login_required
 def get_directories_api():
-
     directories = get_directories()
-    print(directories)
     return jsonify(directories)
 
 
