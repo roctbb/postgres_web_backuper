@@ -18,7 +18,7 @@ def get_schemas():
         return []
 
     for database in databases:
-        if database in IGNORED_DATABASES:
+        if database[0] in IGNORED_DATABASES:
             continue
         try:
             conn = psycopg2.connect(host=PG_HOST, port=PG_PORT, user=PG_USER, password=PG_PASSWORD,
