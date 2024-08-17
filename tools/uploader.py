@@ -4,7 +4,6 @@ from datetime import datetime
 from botocore.config import Config
 import os
 
-
 class ProgressPercentage(object):
     def __init__(self, filename):
         self._filename = filename
@@ -16,7 +15,7 @@ class ProgressPercentage(object):
         # To simplify, we'll assume this is hooked up to a single filename
         self._seen_so_far += bytes_amount
         percentage = int(self._seen_so_far / self._size * 100)
-        if percentage != self._last_reported_percent:
+        if percentage != self._last_reported_percent and percentage % 10 == 0:
             self._last_reported_percent = percentage
             print("Upload progress for %s: %s%%" % (self._filename, self._last_reported_percent))
 
@@ -39,7 +38,7 @@ class S3Uploader:
         self.__directory = datetime.now().strftime('%Y-%m-%d/%H_%M/')
 
         if self.__debug:
-            print("Uploding to ", self.__directory)
+            print("Uploading to ", self.__directory)
 
     def apply(self, file_name):
         if not self.__debug:
