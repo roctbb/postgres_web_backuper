@@ -10,12 +10,15 @@ class ProgressPercentage(object):
         self._filename = filename
         self._size = float(os.path.getsize(filename))
         self._seen_so_far = 0
+        self._last_reported_percent = 0
 
     def __call__(self, bytes_amount):
         # To simplify, we'll assume this is hooked up to a single filename
         self._seen_so_far += bytes_amount
-        percentage = (self._seen_so_far / self._size) * 100
-        print("Upload progress for %s: %s%%" % (self._filename, percentage))
+        percentage = int(self._seen_so_far / self._size * 100)
+        if percentage != self._last_reported_percent:
+            self._last_reported_percent = percentage
+            print("Upload progress for %s: %s%%" % (self._filename, self._last_reported_percent))
 
 
 class S3Uploader:
